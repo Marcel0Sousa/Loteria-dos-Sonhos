@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.marcelo.loteriadossonhos.routes.AppRouter
 import com.marcelo.loteriadossonhos.ui.theme.Green
 import com.marcelo.loteriadossonhos.ui.theme.LoteriaDosSonhosTheme
 
@@ -54,14 +55,16 @@ class MainActivity : ComponentActivity() {
             LoteriaDosSonhosTheme {
                 val navController = rememberNavController()
 
-                NavHost(navController = navController, startDestination = "home") {
-                    composable("home") {
-                        HomeScreen{
-                            navController.navigate(route = "lottery_from")
+                NavHost(
+                    navController = navController,
+                    startDestination = AppRouter.HOME.route) {
+                    composable(AppRouter.HOME.route) {
+                        HomeScreen {
+                            navController.navigate(route = AppRouter.FORM.route)
                         }
                     }
 
-                    composable("lottery_from") {
+                    composable(AppRouter.FORM.route) {
                         FormScreen()
                     }
                 }
@@ -89,14 +92,15 @@ fun LotteryItem(name: String, onClick: () -> Unit) {
             .clickable {
                 onClick()
             }
-    ){
+    ) {
         Column(
             modifier = Modifier
                 .wrapContentSize()
                 .background(Green)
         ) {
-            Image(painter =
-                painterResource(R.drawable.trevo),
+            Image(
+                painter =
+                    painterResource(R.drawable.trevo),
                 contentDescription = "",
                 modifier = Modifier
                     .size(100.dp)
@@ -128,10 +132,13 @@ private fun FormScreen() {
             verticalArrangement = Arrangement.spacedBy(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Image(painter = painterResource(R.drawable.trevo),
+            Image(
+                painter = painterResource(R.drawable.trevo),
                 contentDescription = stringResource(R.string.label_trevo),
-                modifier = Modifier.size(100.dp).padding(10.dp)
-                )
+                modifier = Modifier
+                    .size(100.dp)
+                    .padding(10.dp)
+            )
 
             Text(
                 text = "Mega Senha",
@@ -158,7 +165,9 @@ private fun FormScreen() {
                     imeAction = ImeAction.Next
                 ),
                 onValueChange = {
-                    quantityNumbers = it
+                    if (it.length < 3) {
+                        quantityNumbers = validateInput(it)
+                    }
                 }
             )
 
@@ -170,9 +179,12 @@ private fun FormScreen() {
                 },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Done),
+                    imeAction = ImeAction.Done
+                ),
                 onValueChange = {
-                    quantityBets = it
+                    if (it.length < 3) {
+                        quantityBets = validateInput(it)
+                    }
                 }
             )
 
@@ -187,15 +199,11 @@ private fun FormScreen() {
     }
 }
 
-
-
-
-
-
-
-
-
-
+private fun validateInput(input: String): String {
+    return input.filter { char ->
+        char in "0123456789"
+    }
+}
 
 
 @Preview(showBackground = true, showSystemUi = true, device = "id:pixel_5")
