@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Loteria dos Sonhos</string>
+    <string name="label_trevo">Trevo de 4 folhas</string>
+    <string name="label_announcement">Escolha de 6 á 15 números para o app gerar 60 números.\nSão realizados 2 sorteios semanais para você apostar e torcer para ficar milionário.</string>
+    <string name="label_mega_rule">De 6 á 15 números</string>
+    <string name="label_bets">Quantidades de apostas</string>
+    <string name="label_bets_generate">Gerar apostas</string>
 </resources>
