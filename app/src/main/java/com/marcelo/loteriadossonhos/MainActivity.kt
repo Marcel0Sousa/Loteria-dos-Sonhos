@@ -28,6 +28,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -119,6 +120,7 @@ private fun FormScreen() {
         val snackbarHostState by remember { mutableStateOf(SnackbarHostState()) }
         var result by remember { mutableStateOf("") }
         val coroutineScope = rememberCoroutineScope()
+        val keyboardController = LocalSoftwareKeyboardController.current
 
         Column(
             verticalArrangement = Arrangement.spacedBy(20.dp),
@@ -179,6 +181,7 @@ private fun FormScreen() {
                         result += numberGenerator(quantityNumbers)
                         result += "\n\n"
                     }
+                    keyboardController?.hide()
                 }
             ) {
                 Text(stringResource(R.string.label_bets_generate))
