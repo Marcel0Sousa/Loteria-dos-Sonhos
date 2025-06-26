@@ -4,48 +4,46 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.marcelo.loteriadossonhos.component.CustomTextField
+import com.marcelo.loteriadossonhos.component.LotteryHeaderItemCustom
 import com.marcelo.loteriadossonhos.routes.AppRouter
 import com.marcelo.loteriadossonhos.ui.theme.Green
 import com.marcelo.loteriadossonhos.ui.theme.LoteriaDosSonhosTheme
+import com.marcelo.loteriadossonhos.ui.theme.White
+import kotlinx.coroutines.launch
+import java.util.Random
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,7 +55,8 @@ class MainActivity : ComponentActivity() {
 
                 NavHost(
                     navController = navController,
-                    startDestination = AppRouter.HOME.route) {
+                    startDestination = AppRouter.HOME.route
+                ) {
                     composable(AppRouter.HOME.route) {
                         HomeScreen {
                             navController.navigate(route = AppRouter.FORM.route)
@@ -98,21 +97,11 @@ fun LotteryItem(name: String, onClick: () -> Unit) {
                 .wrapContentSize()
                 .background(Green)
         ) {
-            Image(
-                painter =
-                    painterResource(R.drawable.trevo),
-                contentDescription = "",
-                modifier = Modifier
-                    .size(100.dp)
-                    .padding(10.dp)
-            )
 
-            Text(
-                text = name,
-                color = Color.White,
-                modifier = Modifier
-                    .padding(bottom = 6.dp)
-                    .align(Alignment.CenterHorizontally)
+            LotteryHeaderItemCustom(
+                backgroundColor = Green,
+                colorLabel = White,
+                labelBet = name
             )
         }
     }
@@ -127,25 +116,18 @@ private fun FormScreen() {
     ) {
         var quantityNumbers by remember { mutableStateOf("") }
         var quantityBets by remember { mutableStateOf("") }
+        val snackbarHostState by remember { mutableStateOf(SnackbarHostState()) }
+        var result by remember { mutableStateOf("") }
+        val coroutineScope = rememberCoroutineScope()
 
         Column(
             verticalArrangement = Arrangement.spacedBy(20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(top = 20.dp)
         ) {
-            Image(
-                painter = painterResource(R.drawable.trevo),
-                contentDescription = stringResource(R.string.label_trevo),
-                modifier = Modifier
-                    .size(100.dp)
-                    .padding(10.dp)
-            )
 
-            Text(
-                text = "Mega Senha",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
+            LotteryHeaderItemCustom(
+                labelBet = "Mega Sena"
             )
 
             Text(
@@ -154,49 +136,78 @@ private fun FormScreen() {
                 modifier = Modifier.padding(10.dp)
             )
 
-            OutlinedTextField(
+            CustomTextField(
                 value = quantityNumbers,
-                maxLines = 1,
-                placeholder = {
-                    Text(stringResource(R.string.label_mega_rule))
-                },
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Next
-                ),
-                onValueChange = {
-                    if (it.length < 3) {
-                        quantityNumbers = validateInput(it)
-                    }
+                placeholder = R.string.label_mega_rule
+            ) {
+                if (it.length < 3) {
+                    quantityNumbers = validateInput(it)
                 }
-            )
+            }
 
-            OutlinedTextField(
+            CustomTextField(
                 value = quantityBets,
-                maxLines = 1,
-                placeholder = {
-                    Text(stringResource(R.string.label_bets))
-                },
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Done
-                ),
-                onValueChange = {
-                    if (it.length < 3) {
-                        quantityBets = validateInput(it)
-                    }
+                placeholder = R.string.label_bets,
+                imeAction = ImeAction.Done
+            ) {
+                if (it.length < 3) {
+                    quantityBets = validateInput(it)
                 }
-            )
+            }
 
             OutlinedButton(
+                enabled = quantityBets.isNotEmpty() && quantityNumbers.isNotEmpty(),
                 onClick = {
 
+                        if (quantityBets.toInt() < 1 || quantityBets.toInt() > 10) {
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar("Máximo de números de apostas permitido")
+                            }
+                            return@OutlinedButton
+                        }
+
+                        if (quantityNumbers.toInt() < 6 || quantityNumbers.toInt() > 15) {
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar("O número deve ser entre 6 e 15")
+                            }
+                            return@OutlinedButton
+                        }
+
+                    result = ""
+                    for (index in 1..quantityBets.toInt()) {
+                        result += "[ $index ] "
+                        result += numberGenerator(quantityNumbers)
+                        result += "\n\n"
+                    }
                 }
             ) {
                 Text(stringResource(R.string.label_bets_generate))
             }
+
+            Text(result)
+        }
+
+        Box{
+            SnackbarHost(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 50.dp),
+                hostState = snackbarHostState
+            )
         }
     }
+}
+
+private fun numberGenerator(quantity: String): String {
+    val numbers = mutableSetOf<Int>()
+    while (true) {
+        val numberRandom = Random().nextInt(60)
+        numbers.add(numberRandom + 1)
+
+        if (numbers.size == quantity.toInt()) break
+    }
+
+    return numbers.joinToString(" - ")
 }
 
 private fun validateInput(input: String): String {
