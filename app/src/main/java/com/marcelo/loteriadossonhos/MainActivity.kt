@@ -12,6 +12,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -20,6 +23,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -117,9 +122,13 @@ private fun FormScreen() {
     ) {
         var quantityNumbers by remember { mutableStateOf("") }
         var quantityBets by remember { mutableStateOf("") }
-        val snackbarHostState by remember { mutableStateOf(SnackbarHostState()) }
         var result by remember { mutableStateOf("") }
+        var showAlertDialog by remember { mutableStateOf(false) }
+
+        val snackbarHostState by remember { mutableStateOf(SnackbarHostState()) }
         val coroutineScope = rememberCoroutineScope()
+        val scrollState = rememberScrollState()
+
         val keyboardController = LocalSoftwareKeyboardController.current
 
         Column(
@@ -135,6 +144,7 @@ private fun FormScreen() {
             Text(
                 text = stringResource(R.string.label_announcement),
                 fontStyle = FontStyle.Italic,
+                fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(10.dp)
             )
 
@@ -161,19 +171,19 @@ private fun FormScreen() {
                 enabled = quantityBets.isNotEmpty() && quantityNumbers.isNotEmpty(),
                 onClick = {
 
-                        if (quantityBets.toInt() < 1 || quantityBets.toInt() > 10) {
-                            coroutineScope.launch {
-                                snackbarHostState.showSnackbar("Máximo de números de apostas permitido")
-                            }
-                            return@OutlinedButton
+                    if (quantityBets.toInt() < 1 || quantityBets.toInt() > 10) {
+                        coroutineScope.launch {
+                            snackbarHostState.showSnackbar("Máximo de números de apostas permitido")
                         }
+                        return@OutlinedButton
+                    }
 
-                        if (quantityNumbers.toInt() < 6 || quantityNumbers.toInt() > 15) {
-                            coroutineScope.launch {
-                                snackbarHostState.showSnackbar("O número deve ser entre 6 e 15")
-                            }
-                            return@OutlinedButton
+                    if (quantityNumbers.toInt() < 6 || quantityNumbers.toInt() > 15) {
+                        coroutineScope.launch {
+                            snackbarHostState.showSnackbar("O número deve ser entre 6 e 15")
                         }
+                        return@OutlinedButton
+                    }
 
                     result = ""
                     for (index in 1..quantityBets.toInt()) {
@@ -181,21 +191,59 @@ private fun FormScreen() {
                         result += numberGenerator(quantityNumbers)
                         result += "\n\n"
                     }
+                    showAlertDialog = true
                     keyboardController?.hide()
                 }
             ) {
                 Text(stringResource(R.string.label_bets_generate))
             }
 
-            Text(result)
+            Column(
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .verticalScroll(scrollState)
+                    .padding(bottom = 20.dp)
+            ) {
+                Text(result)
+            }
         }
 
-        Box{
+        Box {
             SnackbarHost(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .padding(bottom = 50.dp),
                 hostState = snackbarHostState
+            )
+        }
+
+        if (showAlertDialog) {
+            AlertDialog(
+                onDismissRequest = {}, confirmButton = {
+                TextButton(
+                    onClick = {
+                        showAlertDialog = false
+                    }
+                ) {
+                    Text(text = stringResource(id = android.R.string.ok))
+                }
+            },
+                dismissButton = {
+                    TextButton(
+                        onClick = {
+                            showAlertDialog = false
+                        }
+                    ) {
+                        Text(text = stringResource(id = android.R.string.cancel))
+                    }
+                },
+                title = {
+                    Text(text = stringResource(R.string.app_name))
+                },
+                text = {
+                    Text(text = stringResource(R.string.good_luck))
+                }
             )
         }
     }
