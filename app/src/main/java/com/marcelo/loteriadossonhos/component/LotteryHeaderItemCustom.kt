@@ -1,5 +1,6 @@
 package com.marcelo.loteriadossonhos.component
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -22,10 +23,11 @@ import com.marcelo.loteriadossonhos.R
 import com.marcelo.loteriadossonhos.ui.theme.Green
 
 @Composable
-fun LotteryHeaderItemCustom(
+fun LotteryHeaderItemTypeCustom(
     backgroundColor: Color = Color.Transparent,
     colorLabel: Color = Color.Black,
-    labelBet: String
+    labelBet: String,
+    @DrawableRes icon: Int = R.drawable.trevo
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -35,7 +37,7 @@ fun LotteryHeaderItemCustom(
     ) {
 
         Image(
-            painter = painterResource(R.drawable.trevo),
+            painter = painterResource(icon),
             contentDescription = stringResource(R.string.label_trevo),
             modifier = Modifier
                 .size(100.dp)
@@ -57,7 +59,7 @@ fun LotteryHeaderItemCustom(
 @Preview(showBackground = true)
 @Composable
 private fun LotteryHeaderPreview() {
-    LotteryHeaderItemCustom(
+    LotteryHeaderItemTypeCustom(
         backgroundColor = Green,
         colorLabel = Color.White,
         labelBet = "Mega Sena"
