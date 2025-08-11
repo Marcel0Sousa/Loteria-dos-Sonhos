@@ -2,5 +2,6 @@ package com.marcelo.loteriadossonhos.routes
 
 enum class AppRouter(val route: String) {
     HOME("home"),
-    FORM("form")
+    MEGA_SENA("mega_sena"),
+    QUINA("quina")
 }
