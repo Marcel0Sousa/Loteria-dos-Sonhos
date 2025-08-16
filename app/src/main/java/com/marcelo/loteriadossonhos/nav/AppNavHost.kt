@@ -33,11 +33,15 @@ fun AppNavHost(modifier: Modifier = Modifier) {
         }
 
         composable(AppRouter.MEGA_SENA.route) {
-            MegaSenaScreen()
+            MegaSenaScreen{megasena ->
+               navController.navigate(AppRouter.BET_LIST_DETAIL.route + "/$megasena")
+            }
         }
 
         composable(AppRouter.QUINA.route) {
-            QuinaScreen()
+            QuinaScreen{quina ->
+                navController.navigate(AppRouter.BET_LIST_DETAIL.route + "/$quina")
+            }
         }
 
         composable(
