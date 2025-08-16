@@ -23,6 +23,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
@@ -30,28 +31,38 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.marcelo.loteriadossonhos.App
 import com.marcelo.loteriadossonhos.R
 import com.marcelo.loteriadossonhos.component.CustomTextField
 import com.marcelo.loteriadossonhos.component.LotteryHeaderItemTypeCustom
+import com.marcelo.loteriadossonhos.data.Bet
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.Random
 
 @Composable
 fun MegaSenaScreen() {
+
+    // Referencia do context da class App
+    val database = (LocalContext.current.applicationContext as App).appDatabse
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    var quantityNumbers by remember { mutableStateOf("") }
+    var quantityBets by remember { mutableStateOf("") }
+    var result by remember { mutableStateOf("") }
+    var showAlertDialog by remember { mutableStateOf(false) }
+
+    // Armazenar as apostas para o DB
+    var resultsToSave = mutableListOf<String>()
+
+    val snackbarHostState by remember { mutableStateOf(SnackbarHostState()) }
+    val coroutineScope = rememberCoroutineScope()
+    val scrollState = rememberScrollState()
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
-        var quantityNumbers by remember { mutableStateOf("") }
-        var quantityBets by remember { mutableStateOf("") }
-        var result by remember { mutableStateOf("") }
-        var showAlertDialog by remember { mutableStateOf(false) }
-
-        val snackbarHostState by remember { mutableStateOf(SnackbarHostState()) }
-        val coroutineScope = rememberCoroutineScope()
-        val scrollState = rememberScrollState()
-
-        val keyboardController = LocalSoftwareKeyboardController.current
 
         Column(
             verticalArrangement = Arrangement.spacedBy(20.dp),
@@ -108,10 +119,14 @@ fun MegaSenaScreen() {
                     }
 
                     result = ""
+                    resultsToSave.clear()
                     for (index in 1..quantityBets.toInt()) {
+                        val numberGenerator = numberGenerator(quantityNumbers)
+                        resultsToSave.add(numberGenerator)
+
                         result += "[ $index ] "
-                        result += numberGenerator(quantityNumbers)
-                        result += "\n\n"
+                        result += numberGenerator
+                        result += "\n"
                     }
                     showAlertDialog = true
                     keyboardController?.hide()
@@ -155,9 +170,17 @@ fun MegaSenaScreen() {
                     TextButton(
                         onClick = {
                             showAlertDialog = false
+
+                            coroutineScope.launch(Dispatchers.IO) {
+                                for (result in resultsToSave) {
+                                    val bet = Bet(type = "MegaSena", numbers = result)
+                                    database.betDao().insert(bet)
+                                }
+                            }
+
                         }
                     ) {
-                        Text(text = stringResource(id = android.R.string.cancel))
+                        Text(text = stringResource(id = R.string.save))
                     }
                 },
                 title = {
