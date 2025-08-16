@@ -2,10 +2,13 @@ package com.marcelo.loteriadossonhos.nav
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.marcelo.loteriadossonhos.routes.AppRouter
+import com.marcelo.loteriadossonhos.view.BetDetailScreen.BetDatailScreen
 import com.marcelo.loteriadossonhos.view.HomeScreen.HomeScreen
 import com.marcelo.loteriadossonhos.view.MegaSenaScreen.MegaSenaScreen
 import com.marcelo.loteriadossonhos.view.QuinaScreen.QuinaScreen
@@ -35,6 +38,17 @@ fun AppNavHost(modifier: Modifier = Modifier) {
 
         composable(AppRouter.QUINA.route) {
             QuinaScreen()
+        }
+
+        composable(
+            route = AppRouter.BET_LIST_DETAIL.route + "/{type}",
+            arguments = listOf(
+                navArgument("type") {
+                    type = NavType.StringType
+                })
+        ) {
+            val type = it.arguments?.getString("type") ?: throw Exception("Tipo não encontrado")
+            BetDatailScreen(type = type)
         }
     }
 }

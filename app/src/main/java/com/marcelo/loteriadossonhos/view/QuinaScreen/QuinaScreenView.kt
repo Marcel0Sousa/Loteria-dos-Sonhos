@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,9 +26,21 @@ import androidx.compose.ui.unit.sp
 import com.marcelo.loteriadossonhos.R
 import com.marcelo.loteriadossonhos.component.CustomTextField
 import com.marcelo.loteriadossonhos.component.LotteryHeaderItemTypeCustom
+import com.marcelo.loteriadossonhos.data.AppDatabase
+import com.marcelo.loteriadossonhos.data.Bet
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Composable
 fun QuinaScreen(modifier: Modifier = Modifier) {
+    val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val db = AppDatabase.getInstance(context)
+    val bet = Bet(
+        type = "Mega Sena",
+        numbers = "34,2,55,24,10"
+    )
+
     Surface(
         modifier = modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
@@ -59,7 +72,9 @@ fun QuinaScreen(modifier: Modifier = Modifier) {
 
             Button(
                 onClick = {
-                    resultado = numero
+                    coroutineScope.launch(Dispatchers.IO) {
+                        db.betDao().insert(bet)
+                    }
                 }
             ) {
                 Text(
