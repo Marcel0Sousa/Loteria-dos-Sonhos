@@ -28,11 +28,10 @@ import com.marcelo.loteriadossonhos.component.CustomTextField
 import com.marcelo.loteriadossonhos.component.LotteryHeaderItemTypeCustom
 import com.marcelo.loteriadossonhos.data.AppDatabase
 import com.marcelo.loteriadossonhos.data.Bet
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.marcelo.loteriadossonhos.routes.AppRouter
 
 @Composable
-fun QuinaScreen(modifier: Modifier = Modifier) {
+fun QuinaScreen(onClick: (String) -> Unit) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
     val db = AppDatabase.getInstance(context)
@@ -42,7 +41,7 @@ fun QuinaScreen(modifier: Modifier = Modifier) {
     )
 
     Surface(
-        modifier = modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
 
@@ -72,9 +71,7 @@ fun QuinaScreen(modifier: Modifier = Modifier) {
 
             Button(
                 onClick = {
-                    coroutineScope.launch(Dispatchers.IO) {
-                        db.betDao().insert(bet)
-                    }
+                    onClick(AppRouter.QUINA.route)
                 }
             ) {
                 Text(
@@ -94,5 +91,5 @@ fun QuinaScreen(modifier: Modifier = Modifier) {
 @Preview(showSystemUi = true)
 @Composable
 private fun QuinaScreenPreviw() {
-    QuinaScreen()
+    QuinaScreen{}
 }

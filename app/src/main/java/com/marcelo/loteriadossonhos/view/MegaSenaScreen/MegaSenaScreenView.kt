@@ -36,12 +36,13 @@ import com.marcelo.loteriadossonhos.R
 import com.marcelo.loteriadossonhos.component.CustomTextField
 import com.marcelo.loteriadossonhos.component.LotteryHeaderItemTypeCustom
 import com.marcelo.loteriadossonhos.data.Bet
+import com.marcelo.loteriadossonhos.routes.AppRouter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.Random
 
 @Composable
-fun MegaSenaScreen() {
+fun MegaSenaScreen(onClick: (String) -> Unit) {
 
     // Referencia do context da class App
     val database = (LocalContext.current.applicationContext as App).appDatabse
@@ -157,10 +158,12 @@ fun MegaSenaScreen() {
 
         if (showAlertDialog) {
             AlertDialog(
-                onDismissRequest = {}, confirmButton = {
+                onDismissRequest = {},
+                confirmButton = {
                     TextButton(
                         onClick = {
                             showAlertDialog = false
+                            onClick(AppRouter.MEGA_SENA.route)
                         }
                     ) {
                         Text(text = stringResource(id = android.R.string.ok))
@@ -173,7 +176,7 @@ fun MegaSenaScreen() {
 
                             coroutineScope.launch(Dispatchers.IO) {
                                 for (result in resultsToSave) {
-                                    val bet = Bet(type = "MegaSena", numbers = result)
+                                    val bet = Bet(type = AppRouter.MEGA_SENA.route, numbers = result)
                                     database.betDao().insert(bet)
                                 }
                             }
@@ -215,5 +218,5 @@ private fun validateInput(input: String): String {
 @Preview(showSystemUi = true)
 @Composable
 private fun FormScreenPreview() {
-    MegaSenaScreen()
+    MegaSenaScreen{}
 }
