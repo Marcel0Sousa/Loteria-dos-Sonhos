@@ -1,4 +1,4 @@
-package com.marcelo.loteriadossonhos.view.HomeScreen
+package com.marcelo.loteriadossonhos.view.homeScreen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
