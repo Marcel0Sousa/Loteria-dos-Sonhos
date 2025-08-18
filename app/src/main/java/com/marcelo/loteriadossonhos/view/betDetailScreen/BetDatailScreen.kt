@@ -1,4 +1,4 @@
-package com.marcelo.loteriadossonhos.view.BetDetailScreen
+package com.marcelo.loteriadossonhos.view.betDetailScreen
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

@@ -8,10 +8,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.marcelo.loteriadossonhos.routes.AppRouter
-import com.marcelo.loteriadossonhos.view.BetDetailScreen.BetDatailScreen
-import com.marcelo.loteriadossonhos.view.HomeScreen.HomeScreen
-import com.marcelo.loteriadossonhos.view.MegaSenaScreen.MegaSenaScreen
-import com.marcelo.loteriadossonhos.view.QuinaScreen.QuinaScreen
+import com.marcelo.loteriadossonhos.view.betDetailScreen.BetDatailScreen
+import com.marcelo.loteriadossonhos.view.homeScreen.HomeScreen
+import com.marcelo.loteriadossonhos.view.megaSenaScreen.MegaSenaScreen
+import com.marcelo.loteriadossonhos.view.quinaScreen.QuinaScreen
 
 @Composable
 fun AppNavHost(modifier: Modifier = Modifier) {
