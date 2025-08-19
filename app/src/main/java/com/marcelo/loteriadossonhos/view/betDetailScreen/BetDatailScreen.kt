@@ -89,6 +89,7 @@ fun BetDatailContentScreen(type: String, modifier: Modifier = Modifier) {
                     id = R.string.list_response,
                     index,
                     simpleDateFormat.format(bet.date),
+                    bet.type,
                     bet.numbers
                 ),
                 Modifier.padding(vertical = 10.dp, horizontal = 10.dp)
