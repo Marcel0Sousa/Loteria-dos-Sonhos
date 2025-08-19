@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -56,7 +57,7 @@ import java.util.Random
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MegaSenaScreen(onClick: (String) -> Unit) {
+fun MegaSenaScreen(onMenuClick: (String) -> Unit, onBackClick: () -> Unit) {
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -76,17 +77,29 @@ fun MegaSenaScreen(onClick: (String) -> Unit) {
                     ),
                     actions = {
                         IconButton(onClick = {
-                            onClick(AppRouter.MEGA_SENA.route)
-                        }){
+                            onMenuClick(AppRouter.MEGA_SENA.route)
+                        }) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.List,
                                 tint = White,
-                                contentDescription = null)
+                                contentDescription = null
+                            )
+                        }
+                    },
+                    navigationIcon = {
+                        IconButton(
+                            onClick = onBackClick
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                tint = White,
+                                contentDescription = "Voltar"
+                            )
                         }
                     }
                 )
             },
-        ) {paddingValues ->
+        ) { paddingValues ->
             MegaSenaContentScreen(modifier = Modifier.padding(top = paddingValues.calculateTopPadding()))
         }
     }
@@ -268,6 +281,7 @@ private fun validateInput(input: String): String {
 @Composable
 private fun FormScreenPreview() {
     MegaSenaScreen(
-        onClick = {}
+        onMenuClick = {},
+        onBackClick = {}
     )
 }

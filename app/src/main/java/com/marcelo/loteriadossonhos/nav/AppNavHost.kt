@@ -33,15 +33,25 @@ fun AppNavHost(modifier: Modifier = Modifier) {
         }
 
         composable(AppRouter.MEGA_SENA.route) {
-            MegaSenaScreen{megasena ->
-               navController.navigate(AppRouter.BET_LIST_DETAIL.route + "/$megasena")
-            }
+            MegaSenaScreen(
+                onMenuClick = {megasena ->
+                    navController.navigate(AppRouter.BET_LIST_DETAIL.route + "/$megasena")
+                },
+                onBackClick = {
+                    navController.popBackStack()
+                }
+            )
         }
 
         composable(AppRouter.QUINA.route) {
-            QuinaScreen{quina ->
-                navController.navigate(AppRouter.BET_LIST_DETAIL.route + "/$quina")
-            }
+            QuinaScreen(
+                onMenuClick = {quina ->
+                    navController.navigate(AppRouter.BET_LIST_DETAIL.route + "/$quina")
+                },
+                onBackClick = {
+                    navController.popBackStack()
+                }
+            )
         }
 
         composable(
@@ -52,7 +62,9 @@ fun AppNavHost(modifier: Modifier = Modifier) {
                 })
         ) {
             val type = it.arguments?.getString("type") ?: throw Exception("Tipo não encontrado")
-            BetDatailScreen(type = type)
+            BetDatailScreen(
+                type = type,
+                onBackClick = {navController.popBackStack()})
         }
     }
 }
