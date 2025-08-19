@@ -8,4 +8,5 @@
     <string name="good_luck">Boa Sorte =)</string>
     <string name="numero_quina">Numéro</string>
     <string name="save">Salvar</string>
+    <string name="list_response"> [%3$s]\n[%1$d] [%2$s]\n%4$s </string>
 </resources>
