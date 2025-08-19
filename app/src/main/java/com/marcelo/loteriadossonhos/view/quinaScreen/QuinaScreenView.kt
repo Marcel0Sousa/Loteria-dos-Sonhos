@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -40,7 +41,7 @@ import com.marcelo.loteriadossonhos.ui.theme.White
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun QuinaScreen(onClick: (String) -> Unit) {
+fun QuinaScreen(onMenuClick: (String) -> Unit, onBackClick: () -> Unit) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
 
@@ -62,21 +63,33 @@ fun QuinaScreen(onClick: (String) -> Unit) {
                     ),
                     actions = {
                         IconButton(
-                          onClick = {
-                              onClick(AppRouter.QUINA.route)
-                          }
+                            onClick = {
+                                onMenuClick(AppRouter.QUINA.route)
+                            }
                         ) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.List,
                                 tint = White,
-                                contentDescription = "")
+                                contentDescription = ""
+                            )
+                        }
+                    },
+                    navigationIcon = {
+                        IconButton(
+                            onClick = onBackClick
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                tint = White,
+                                contentDescription = "Voltar"
+                            )
                         }
                     }
                 )
             }
         ) { paddingValues ->
             QuinaContentScreen(modifier = Modifier.padding(top = paddingValues.calculateTopPadding())) {
-                onClick(it)
+                onMenuClick(it)
             }
         }
     }
@@ -129,5 +142,8 @@ fun QuinaContentScreen(modifier: Modifier, onClick: (String) -> Unit) {
 @Preview(showSystemUi = true)
 @Composable
 private fun QuinaScreenPreview() {
-    QuinaScreen {}
+    QuinaScreen(
+        onMenuClick = {},
+        onBackClick = {}
+    )
 }
