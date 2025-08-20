@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -36,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -44,6 +46,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.marcelo.loteriadossonhos.App
 import com.marcelo.loteriadossonhos.R
+import com.marcelo.loteriadossonhos.component.AutoTextDropDown
 import com.marcelo.loteriadossonhos.component.CustomTextField
 import com.marcelo.loteriadossonhos.component.LotteryHeaderItemTypeCustom
 import com.marcelo.loteriadossonhos.data.AppDatabase
@@ -129,6 +132,9 @@ fun MegaSenaContentScreen(modifier: Modifier = Modifier) {
     val coroutineScope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
 
+    val rules = stringArrayResource(R.array.arrat_bet_rules)
+    var selectedItem by remember { mutableStateOf(rules.first()) }
+
     Column(
         verticalArrangement = Arrangement.spacedBy(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -167,6 +173,14 @@ fun MegaSenaContentScreen(modifier: Modifier = Modifier) {
             }
         }
 
+        Column(Modifier.width(280.dp)) {
+            AutoTextDropDown(
+                label = stringResource(R.string.bet_rules),
+                initial = selectedItem,
+                list = rules.toList()
+            )
+        }
+
         OutlinedButton(
             enabled = quantityBets.isNotEmpty() && quantityNumbers.isNotEmpty(),
             onClick = {
@@ -187,8 +201,9 @@ fun MegaSenaContentScreen(modifier: Modifier = Modifier) {
 
                 result = ""
                 resultsToSave.clear()
+                val rule = rules.indexOf(selectedItem)
                 for (index in 1..quantityBets.toInt()) {
-                    val numberGenerator = numberGenerator(quantityNumbers)
+                    val numberGenerator = numberGenerator(quantityNumbers, rule)
                     resultsToSave.add(numberGenerator)
 
                     result += "[ $index ] "
@@ -205,7 +220,7 @@ fun MegaSenaContentScreen(modifier: Modifier = Modifier) {
         Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = modifier.padding(bottom = 20.dp)
+            modifier = Modifier.padding(bottom = 20.dp)
         ) {
             Text(result)
         }
@@ -259,12 +274,17 @@ fun MegaSenaContentScreen(modifier: Modifier = Modifier) {
     }
 }
 
-private fun numberGenerator(quantity: String): String {
+private fun numberGenerator(quantity: String, rule: Int): String {
     val numbers = mutableSetOf<Int>()
     while (true) {
         val numberRandom = Random().nextInt(60)
-        numbers.add(numberRandom + 1)
 
+        when (rule) {
+            1 -> if (numberRandom % 2 == 0) continue
+            2 -> if (numberRandom % 2 != 0) continue
+        }
+
+        numbers.add(numberRandom + 1)
         if (numbers.size == quantity.toInt()) break
     }
 
