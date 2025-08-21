@@ -77,17 +77,21 @@ fun HomeContentScreen(modifier: Modifier, onClick: (MainItem) -> Unit) {
         MainItem(2, "Quina", Blue, R.drawable.trevo_blue)
     )
 
-    LazyVerticalGrid(
-        verticalArrangement = Arrangement.SpaceAround,
-        columns = GridCells.Fixed(2),
-        modifier = modifier.padding(top = 50.dp)
+    Column(
+        modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center
     ) {
-        items(mainItems) {
-            LotteryItem(it) {
-                onClick(it)
+        LazyVerticalGrid(
+            verticalArrangement = Arrangement.SpaceAround,
+            columns = GridCells.Fixed(2),
+        ) {
+            items(mainItems) {
+                LotteryItem(it) {
+                    onClick(it)
+                }
             }
-        }
 
+        }
     }
 }
 
