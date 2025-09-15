@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    id("com.google.devtools.ksp")
+    alias(libs.plugins.devtools.ksp)
 }
 
 android {
@@ -50,13 +50,11 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    val nav_version = "2.9.0"
-    implementation("androidx.navigation:navigation-compose:$nav_version")
 
-    val room_version = "2.7.2"
-    implementation("androidx.room:room-runtime:${room_version}")
-    ksp("androidx.room:room-compiler:${room_version}")
-    implementation("androidx.room:room-ktx:${room_version}")
+    implementation(libs.androidx.navigation)
+    implementation(libs.androidx.room)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

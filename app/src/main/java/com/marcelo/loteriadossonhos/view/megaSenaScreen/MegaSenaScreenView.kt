@@ -61,6 +61,7 @@ import java.util.Random
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MegaSenaScreen(onMenuClick: (String) -> Unit, onBackClick: () -> Unit) {
+    val snackbarHostState by remember { mutableStateOf(SnackbarHostState()) }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -102,14 +103,23 @@ fun MegaSenaScreen(onMenuClick: (String) -> Unit, onBackClick: () -> Unit) {
                     }
                 )
             },
+            snackbarHost = {
+                SnackbarHost(hostState = snackbarHostState)
+            }
         ) { paddingValues ->
-            MegaSenaContentScreen(modifier = Modifier.padding(top = paddingValues.calculateTopPadding()))
+            MegaSenaContentScreen(
+                modifier = Modifier.padding(top = paddingValues.calculateTopPadding()),
+                snackbarHostState
+            )
         }
     }
 }
 
 @Composable
-fun MegaSenaContentScreen(modifier: Modifier = Modifier) {
+fun MegaSenaContentScreen(
+    modifier: Modifier = Modifier,
+    snackbarHostState: SnackbarHostState,
+) {
 
     val isInPreview = LocalInspectionMode.current
     // Referencia do context da class App
@@ -128,7 +138,6 @@ fun MegaSenaContentScreen(modifier: Modifier = Modifier) {
     // Armazenar as apostas para o DB
     val resultsToSave = remember { mutableStateListOf<String>() }
 
-    val snackbarHostState by remember { mutableStateOf(SnackbarHostState()) }
     val coroutineScope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
 
