@@ -8,7 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.marcelo.loteriadossonhos.routes.AppRouter
-import com.marcelo.loteriadossonhos.view.betDetailScreen.BetDatailScreen
+import com.marcelo.loteriadossonhos.view.betListDetailScreen.BetListDatailContent
 import com.marcelo.loteriadossonhos.view.homeScreen.HomeScreen
 import com.marcelo.loteriadossonhos.view.megaSenaScreen.MegaSenaScreen
 import com.marcelo.loteriadossonhos.view.quinaScreen.QuinaScreen
@@ -61,10 +61,11 @@ fun AppNavHost(modifier: Modifier = Modifier) {
                     type = NavType.StringType
                 })
         ) {
-            val type = it.arguments?.getString("type") ?: throw Exception("Tipo não encontrado")
-            BetDatailScreen(
+            val type = it.arguments?.getString("type") ?: throw Exception("Erro, type not found!")
+            BetListDatailContent(
                 type = type,
-                onBackClick = {navController.popBackStack()})
+                onBackClick = {navController.popBackStack()}
+            )
         }
     }
 }

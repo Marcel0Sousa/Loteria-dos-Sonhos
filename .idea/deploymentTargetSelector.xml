@@ -4,11 +4,14 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-08-13T16:44:12.809672079Z">
+        <DropdownSelection timestamp="2025-08-21T18:36:53.165856086Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=/home/tchelo/.android/avd/Pixel_9.avd" />
+              <DeviceId pluginId="FirebaseDirectAccess" identifier="reservation=projects/device-streaming-d3ff3af1/deviceSessions/session-3jf0l1mx5fkv3" />
             </handle>
+            <template>
+              <DeviceId pluginId="FirebaseDirectAccess" type="TEMPLATE" identifier="model_id=redfin/30" />
+            </template>
           </Target>
         </DropdownSelection>
         <DialogSelection />
