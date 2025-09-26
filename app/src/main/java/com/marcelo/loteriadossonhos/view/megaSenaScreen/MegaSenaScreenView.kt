@@ -1,7 +1,6 @@
 package com.marcelo.loteriadossonhos.view.megaSenaScreen
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -26,16 +25,14 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
@@ -44,24 +41,24 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.marcelo.loteriadossonhos.App
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.marcelo.loteriadossonhos.R
 import com.marcelo.loteriadossonhos.component.AutoTextDropDown
 import com.marcelo.loteriadossonhos.component.CustomTextField
 import com.marcelo.loteriadossonhos.component.LotteryHeaderItemTypeCustom
-import com.marcelo.loteriadossonhos.data.AppDatabase
-import com.marcelo.loteriadossonhos.data.Bet
 import com.marcelo.loteriadossonhos.routes.AppRouter
 import com.marcelo.loteriadossonhos.ui.theme.Green
 import com.marcelo.loteriadossonhos.ui.theme.White
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.Random
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MegaSenaScreen(onMenuClick: (String) -> Unit, onBackClick: () -> Unit) {
+fun MegaSenaScreen(
+    onMenuClick: (String) -> Unit,
+    onBackClick: () -> Unit,
+) {
     val snackbarHostState by remember { mutableStateOf(SnackbarHostState()) }
+    val coroutineScope = rememberCoroutineScope()
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -107,40 +104,34 @@ fun MegaSenaScreen(onMenuClick: (String) -> Unit, onBackClick: () -> Unit) {
                 SnackbarHost(hostState = snackbarHostState)
             }
         ) { paddingValues ->
-            MegaSenaContentScreen(
+            MegaSenaContent(
                 modifier = Modifier.padding(top = paddingValues.calculateTopPadding()),
-                snackbarHostState
+                errorMessage = { message ->
+                    coroutineScope.launch {
+                        snackbarHostState.showSnackbar(message)
+                    }
+                }
             )
         }
     }
 }
 
 @Composable
-fun MegaSenaContentScreen(
+fun MegaSenaContent(
     modifier: Modifier = Modifier,
-    snackbarHostState: SnackbarHostState,
+    errorMessage: (String) -> Unit,
+    megaSenaViewModel: MegaSenaViewModel = viewModel(factory = MegaSenaViewModel.factory),
 ) {
 
-    val isInPreview = LocalInspectionMode.current
-    // Referencia do context da class App
-    val database: AppDatabase? = if (!isInPreview) {
-        (LocalContext.current.applicationContext as App).appDatabse
-    } else {
-        null
-    }
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    var quantityNumbers by remember { mutableStateOf("") }
-    var quantityBets by remember { mutableStateOf("") }
-    var result by remember { mutableStateOf("") }
-    var showAlertDialog by remember { mutableStateOf(false) }
+    val quantityNumbers = megaSenaViewModel.quantityNumbers.collectAsState().value
+    val quantityBets = megaSenaViewModel.quantityBets.collectAsState().value
+    val result = megaSenaViewModel.result.collectAsState().value
+    val showAlertDialog = megaSenaViewModel.showAlertDialog.collectAsState().value
+    val message = megaSenaViewModel.errorMessage.collectAsState().value
 
-    // Armazenar as apostas para o DB
-    val resultsToSave = remember { mutableStateListOf<String>() }
-
-    val coroutineScope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
-
     val rules = stringArrayResource(R.array.arrat_bet_rules)
     var selectedItem by remember { mutableStateOf(rules.first()) }
 
@@ -167,9 +158,7 @@ fun MegaSenaContentScreen(
             value = quantityNumbers,
             placeholder = R.string.label_mega_rule
         ) {
-            if (it.length < 3) {
-                quantityNumbers = validateInput(it)
-            }
+            megaSenaViewModel.updateQuantityNumbers(it)
         }
 
         CustomTextField(
@@ -177,9 +166,7 @@ fun MegaSenaContentScreen(
             placeholder = R.string.label_bets,
             imeAction = ImeAction.Done
         ) {
-            if (it.length < 3) {
-                quantityBets = validateInput(it)
-            }
+            megaSenaViewModel.updateQuantityBets(it)
         }
 
         Column(Modifier.width(280.dp)) {
@@ -194,32 +181,22 @@ fun MegaSenaContentScreen(
             enabled = quantityBets.isNotEmpty() && quantityNumbers.isNotEmpty(),
             onClick = {
 
-                if (quantityBets.toInt() < 1 || quantityBets.toInt() > 10) {
-                    coroutineScope.launch {
-                        snackbarHostState.showSnackbar("Máximo de números de apostas permitido")
-                    }
+                val quantityBetsInt = quantityBets.toIntOrNull() ?: 0
+                val quantityNumbersInt = quantityNumbers.toIntOrNull() ?: 0
+
+                if (quantityBetsInt < 1 || quantityBetsInt > 10) {
+                    errorMessage("Número máximo de apostas não permitido")
                     return@OutlinedButton
                 }
 
-                if (quantityNumbers.toInt() < 6 || quantityNumbers.toInt() > 15) {
-                    coroutineScope.launch {
-                        snackbarHostState.showSnackbar("O número deve ser entre 6 e 15")
-                    }
+                if (quantityNumbersInt < 6 || quantityNumbersInt > 15) {
+                    errorMessage("O número deve ser entre 6 e 15")
                     return@OutlinedButton
                 }
 
-                result = ""
-                resultsToSave.clear()
                 val rule = rules.indexOf(selectedItem)
-                for (index in 1..quantityBets.toInt()) {
-                    val numberGenerator = numberGenerator(quantityNumbers, rule)
-                    resultsToSave.add(numberGenerator)
-
-                    result += "[ $index ] "
-                    result += numberGenerator
-                    result += "\n\n"
-                }
-                showAlertDialog = true
+                megaSenaViewModel.updateNumbers(rule)
+                showAlertDialog
                 keyboardController?.hide()
             }
         ) {
@@ -235,22 +212,13 @@ fun MegaSenaContentScreen(
         }
     }
 
-    Box {
-        SnackbarHost(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 50.dp),
-            hostState = snackbarHostState
-        )
-    }
-
     if (showAlertDialog) {
         AlertDialog(
             onDismissRequest = {},
             confirmButton = {
                 TextButton(
                     onClick = {
-                        showAlertDialog = false
+                        megaSenaViewModel.dismissAlertDialog()
                     }
                 ) {
                     Text(text = stringResource(id = android.R.string.ok))
@@ -259,14 +227,7 @@ fun MegaSenaContentScreen(
             dismissButton = {
                 TextButton(
                     onClick = {
-                        showAlertDialog = false
-
-                        coroutineScope.launch(Dispatchers.IO) {
-                            for (result in resultsToSave) {
-                                val bet = Bet(type = AppRouter.MEGA_SENA.route, numbers = result)
-                                database?.betDao()?.insert(bet)
-                            }
-                        }
+                        megaSenaViewModel.saveNumberBet(AppRouter.MEGA_SENA.route)
 
                     }
                 ) {
@@ -280,29 +241,6 @@ fun MegaSenaContentScreen(
                 Text(text = stringResource(R.string.good_luck))
             }
         )
-    }
-}
-
-private fun numberGenerator(quantity: String, rule: Int): String {
-    val numbers = mutableSetOf<Int>()
-    while (true) {
-        val numberRandom = Random().nextInt(60)
-
-        when (rule) {
-            1 -> if (numberRandom % 2 == 0) continue
-            2 -> if (numberRandom % 2 != 0) continue
-        }
-
-        numbers.add(numberRandom + 1)
-        if (numbers.size == quantity.toInt()) break
-    }
-
-    return numbers.joinToString(" - ")
-}
-
-private fun validateInput(input: String): String {
-    return input.filter { char ->
-        char in "0123456789"
     }
 }
 

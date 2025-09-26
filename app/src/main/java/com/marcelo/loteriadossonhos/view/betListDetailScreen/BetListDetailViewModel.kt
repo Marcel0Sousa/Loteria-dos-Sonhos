@@ -1,9 +1,8 @@
-package com.marcelo.loteriadossonhos.viewModels
+package com.marcelo.loteriadossonhos.view.betListDetailScreen
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
@@ -36,9 +35,9 @@ class BetListDetailViewModel(
         val factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
 
-                val application = extras[APPLICATION_KEY]
+                val application = extras[ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY]
                 val betDao = (application as App).appDatabse.betDao()
-                val repository = BetRepository.getInstance(betDao = betDao)
+                val repository = BetRepository.Companion.getInstance(betDao = betDao)
 
                 val savedStateHandle = extras.createSavedStateHandle()
                 return BetListDetailViewModel(savedStateHandle, repository) as T
