@@ -63,7 +63,6 @@ fun AppNavHost(modifier: Modifier = Modifier) {
         ) {
             val type = it.arguments?.getString("type") ?: throw Exception("Erro, type not found!")
             BetListDatailContent(
-                type = type,
                 onBackClick = {navController.popBackStack()}
             )
         }

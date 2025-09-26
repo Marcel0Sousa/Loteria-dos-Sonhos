@@ -26,14 +26,13 @@ import com.marcelo.loteriadossonhos.R
 import com.marcelo.loteriadossonhos.data.Bet
 import com.marcelo.loteriadossonhos.ui.theme.Gray
 import com.marcelo.loteriadossonhos.ui.theme.White
-import com.marcelo.loteriadossonhos.viewModels.BetListDetailViewModel
+import com.marcelo.loteriadossonhos.view.betListDetailScreen.BetListDetailViewModel
 import java.text.SimpleDateFormat
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BetListDatailScreen(
-    type: String,
     bets: List<Bet> = emptyList(),
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -94,7 +93,6 @@ fun BetListDatailScreen(
 
 @Composable
 fun BetListDatailContent(
-    type: String,
     onBackClick: () -> Unit,
     betViewModel: BetListDetailViewModel = viewModel(factory = BetListDetailViewModel.factory),
 ) {
@@ -102,7 +100,6 @@ fun BetListDatailContent(
     val bets = betViewModel.bet.collectAsState(initial = emptyList()).value
 
     BetListDatailScreen(
-        type = type,
         bets = bets,
         onBackClick = onBackClick
     )
@@ -112,5 +109,5 @@ fun BetListDatailContent(
 @Preview(showBackground = true)
 @Composable
 private fun BetDatailsScreenPreview() {
-    BetListDatailScreen(type = "megasena", onBackClick = {})
+    BetListDatailScreen(onBackClick = {})
 }

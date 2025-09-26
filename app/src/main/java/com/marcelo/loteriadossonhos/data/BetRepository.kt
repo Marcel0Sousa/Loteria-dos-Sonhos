@@ -3,7 +3,6 @@ package com.marcelo.loteriadossonhos.data
 class BetRepository(private val betDao: BetDao) {
 
     suspend fun getBets(type: String): List<Bet> {
-        // Formas de buscar os dados.
         return betDao.getNumbersByType(type)
     }
 
